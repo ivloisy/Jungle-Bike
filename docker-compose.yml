@@ -1,0 +1,40 @@
+services:
+  db:
+    container_name: db
+    image: "mysql"
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./db/:/var/lib/mysql
+      - ./requirements/db/tools/jungle-bike.sql:/docker-entrypoint-initdb.d/jungle-bike.sql
+
+  web:
+    container_name: web
+    # image: "php:apache"
+    build:
+      context: ./requirements/web
+    depends_on:
+      - db
+    restart: always
+    # user: "www-data:www-data"
+    volumes:
+      - ./app:/var/www/html/
+      # - ./uploads:/home/uploads/
+    # command: sh -c "chown -R www-data:www-data /home/uploads"
+    # entrypoint: |
+    #         /bin/sh -c "chown -R www-data:www-data /home/uploads/"
+    ports:
+      - "80:80"
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 8080:8080
+
+# networks:
+#   jungle-bike:
